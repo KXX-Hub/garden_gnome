@@ -18,6 +18,19 @@ class PlantViewModel: ObservableObject {
         plants.append(plant)
     }
     
+    func updatePlant(_ plant: Plant, plantedDate: Date) {
+        if let index = plants.firstIndex(where: { $0.id == plant.id }) {
+            plants[index].plantedDate = plantedDate
+        }
+    }
+    
+    func updateWateringIntervals(_ plant: Plant, active: Int, dormant: Int) {
+        if let index = plants.firstIndex(where: { $0.id == plant.id }) {
+            plants[index].activeWateringInterval = active
+            plants[index].dormantWateringInterval = dormant
+        }
+    }
+    
     func removePlant(at indexSet: IndexSet) {
         plants.remove(atOffsets: indexSet)
     }

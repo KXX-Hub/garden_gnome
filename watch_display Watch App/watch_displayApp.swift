@@ -4,7 +4,9 @@ import SwiftUI
 struct watch_displayApp: App {
     var body: some Scene {
         WindowGroup {
-            PlantListView()
+            NavigationStack {
+                PlantListView()
+            }
         }
     }
 }
