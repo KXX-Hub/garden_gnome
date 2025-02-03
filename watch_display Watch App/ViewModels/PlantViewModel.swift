@@ -3,8 +3,18 @@ import Foundation
 class PlantViewModel: ObservableObject {
     @Published var plants: [Plant] = []
     
-    func addPlant(name: String, species: String, wateringInterval: Int) {
-        let plant = Plant(name: name, species: species, wateringInterval: wateringInterval)
+    func addPlant(name: String,
+                 species: String,
+                 growthType: GrowthType,
+                 activeWateringInterval: Int,
+                 dormantWateringInterval: Int) {
+        let plant = Plant(
+            name: name,
+            species: species,
+            growthType: growthType,
+            activeWateringInterval: activeWateringInterval,
+            dormantWateringInterval: dormantWateringInterval
+        )
         plants.append(plant)
     }
     
@@ -15,6 +25,12 @@ class PlantViewModel: ObservableObject {
     func waterPlant(_ plant: Plant) {
         if let index = plants.firstIndex(where: { $0.id == plant.id }) {
             plants[index].lastWatered = Date()
+        }
+    }
+    
+    func togglePlantState(_ plant: Plant) {
+        if let index = plants.firstIndex(where: { $0.id == plant.id }) {
+            plants[index].currentState = plants[index].currentState == .active ? .dormant : .active
         }
     }
 }

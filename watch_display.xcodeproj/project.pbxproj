@@ -69,6 +69,7 @@
 		3D838FD62D505ACD00662563 /* watch_display Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "watch_display Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D838FE82D505ACE00662563 /* watch_display Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "watch_display Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D838FF22D505ACE00662563 /* watch_display Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "watch_display Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D8391012D509F4300662563 /* watch_display Watch App.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "watch_display Watch App.xctestplan"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -153,6 +154,7 @@
 		3D838FA72D505ACC00662563 = {
 			isa = PBXGroup;
 			children = (
+				3D8391012D509F4300662563 /* watch_display Watch App.xctestplan */,
 				3D838FB22D505ACC00662563 /* watch_display */,
 				3D838FC32D505ACD00662563 /* watch_displayTests */,
 				3D838FCD2D505ACD00662563 /* watch_displayUITests */,
