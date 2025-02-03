@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "E81FA432-94A8-4C27-829F-23A8377C7028",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:watch_display.xcodeproj",
+      "identifier" : "3D838FD52D505ACD00662563",
+      "name" : "watch_display Watch App"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:watch_display.xcodeproj",
+        "identifier" : "3D838FE72D505ACE00662563",
+        "name" : "watch_display Watch AppTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:watch_display.xcodeproj",
+        "identifier" : "3D838FF12D505ACE00662563",
+        "name" : "watch_display Watch AppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
