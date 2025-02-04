@@ -19,9 +19,33 @@ struct PlantDetailView: View {
         let currentMonth = Calendar.current.component(.month, from: Date())
         switch plant.growthType {
         case .winter:
-            return plant.currentState == .active && (currentMonth >= 4 && currentMonth <= 9)
+            return (currentMonth >= 4 && currentMonth <= 9 && plant.currentState == .active) ||
+                   ((currentMonth >= 10 || currentMonth <= 3) && plant.currentState == .dormant)
         case .summer:
-            return plant.currentState == .active && (currentMonth >= 10 || currentMonth <= 3)
+            return ((currentMonth >= 10 || currentMonth <= 3) && plant.currentState == .active) ||
+                   (currentMonth >= 4 && currentMonth <= 9 && plant.currentState == .dormant)
+        case .evergreen:
+            return false
+        }
+    }
+    
+    var shouldShowWarningAfterToggle: Bool {
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let willBeActive = plant.currentState == .dormant
+        
+        switch plant.growthType {
+        case .winter:
+            if willBeActive {
+                return currentMonth >= 4 && currentMonth <= 9
+            } else {
+                return currentMonth >= 10 || currentMonth <= 3
+            }
+        case .summer:
+            if willBeActive {
+                return currentMonth >= 10 || currentMonth <= 3
+            } else {
+                return currentMonth >= 4 && currentMonth <= 9
+            }
         case .evergreen:
             return false
         }
@@ -31,119 +55,163 @@ struct PlantDetailView: View {
         List {
             Section("基本資訊") {
                 LabeledContent("名稱", value: plant.name)
-                    .font(.footnote)
+                    .font(.system(size: 14))
                 LabeledContent("品種", value: plant.species)
-                    .font(.footnote)
+                    .font(.system(size: 14))
                 LabeledContent("種植日期", value: plant.plantedDate.formatted(date: .abbreviated, time: .omitted))
-                    .font(.footnote)
+                    .font(.system(size: 14))
             }
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.gray.opacity(0.2))
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
+            )
             
             Section("生長狀態") {
-               LabeledContent("生長類型", value: plant.growthType.rawValue)
-                   .font(.footnote)
-               HStack {
-                   Text("目前狀態").font(.footnote)
-                   Spacer()
-                   Text(plant.currentState.rawValue)
-                       .font(.footnote)
-                       .foregroundColor(isWrongGrowthState ? .red : .primary)
-               }
-               
-               Button(action: { showingStateAlert = true }) {
-                   Label("切換生長狀態", systemImage: "arrow.triangle.2.circlepath")
-                       .font(.caption)
-               }
+                LabeledContent("生長類型", value: plant.growthType.rawValue)
+                    .font(.system(size: 14))
+                HStack {
+                    Text("目前狀態").font(.system(size: 14))
+                    Spacer()
+                    Text(plant.currentState.rawValue)
+                        .font(.system(size: 14))
+                        .foregroundColor(isWrongGrowthState ? .red : .primary)
+                }
                 
-               
-               if isWrongGrowthState {
-                   HStack {
-                       Image(systemName: "exclamationmark.triangle.fill")
-                           .foregroundColor(.yellow)
-                           .imageScale(.small)
-                       Text("現在季節與生長狀態不符")
-                           .font(.caption2)
-                           .foregroundColor(.secondary)
-                   }
-               }
+                Button(action: {
+                    showingStateAlert = true
+                }) {
+                    Label("切換生長狀態", systemImage: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(.plain)
+                
+                if isWrongGrowthState {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.yellow)
+                            .imageScale(.small)
+                        Text("現在季節與生長狀態不符")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             .listRowBackground(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.blue.opacity(0.3))
-                    .padding(2)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
             )
             
             Section("澆水資訊") {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("目前週期：\(plant.currentWateringInterval) 天")
-                        .font(.footnote)
+                        .font(.system(size: 14))
                     
                     Text("澆水間隔")
-                        .font(.caption2)
+                        .font(.system(size: 14))
                         .foregroundColor(.secondary)
                     
-                    VStack(spacing: 10) {
-                        HStack {
-                            Text("生長期: ")
-                                .font(.caption2)
-                            Text("\(activeInterval)天")
-                                .font(.caption2)
-                                .frame(minWidth: 40, alignment: .leading)
-                            Spacer()
+                    VStack(spacing: 12) {
+                        // 生長期
+                        VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                CircleButton("-") {
-                                    if activeInterval > 1 { activeInterval -= 1 }
+                                Text("生長期:")
+                                    .font(.system(size: 14))
+                                Text("\(activeInterval)天")
+                                    .font(.system(size: 14))
+                                Spacer()
+                                Button(action: {
+                                    if activeInterval > 1 {
+                                        activeInterval -= 1
+                                        viewModel.updateWateringIntervals(plant, active: activeInterval, dormant: dormantInterval)
+                                    }
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.system(size: 24))
                                 }
-                                CircleButton("+") {
-                                    if activeInterval < 30 { activeInterval += 1 }
+                                .buttonStyle(.plain)
+                                
+                                Button(action: {
+                                    if activeInterval < 30 {
+                                        activeInterval += 1
+                                        viewModel.updateWateringIntervals(plant, active: activeInterval, dormant: dormantInterval)
+                                    }
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.green)
+                                        .font(.system(size: 24))
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .onChange(of: activeInterval) { newValue in
-                                viewModel.updateWateringIntervals(plant, active: newValue, dormant: dormantInterval)
-                            }
+                            .padding(.vertical, 4)
+                            .contentShape(Rectangle())
                         }
                         
-                        HStack {
-                            Text("休眠期: ")
-                                .font(.caption2)
-                            Text("\(dormantInterval)天")
-                                .font(.caption2)
-                                .frame(minWidth: 40, alignment: .leading)
-                            Spacer()
+                        // 休眠期
+                        VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                CircleButton("-") {
-                                    if dormantInterval > 1 { dormantInterval -= 1 }
+                                Text("休眠期:")
+                                    .font(.system(size: 14))
+                                Text("\(dormantInterval)天")
+                                    .font(.system(size: 14))
+                                Spacer()
+                                Button(action: {
+                                    if dormantInterval > 1 {
+                                        dormantInterval -= 1
+                                        viewModel.updateWateringIntervals(plant, active: activeInterval, dormant: dormantInterval)
+                                    }
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.system(size: 24))
                                 }
-                                CircleButton("+") {
-                                    if dormantInterval < 60 { dormantInterval += 1 }
+                                .buttonStyle(.plain)
+                                
+                                Button(action: {
+                                    if dormantInterval < 60 {
+                                        dormantInterval += 1
+                                        viewModel.updateWateringIntervals(plant, active: activeInterval, dormant: dormantInterval)
+                                    }
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.green)
+                                        .font(.system(size: 24))
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .onChange(of: dormantInterval) { newValue in
-                                viewModel.updateWateringIntervals(plant, active: activeInterval, dormant: newValue)
-                            }
+                            .padding(.vertical, 4)
+                            .contentShape(Rectangle())
                         }
                     }
                 }
                 
                 Button(action: {
-                      viewModel.waterPlant(plant)
-                  }) {
-                      Label("現在澆水", systemImage: "drop.circle.fill")
-                          .font(.footnote)
-                  }
-                  .tint(.blue)
-               }
+                    viewModel.waterPlant(plant)
+                }) {
+                    Label("現在澆水", systemImage: "drop.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .padding(.top, 8)
+            }
             .listRowBackground(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.blue.opacity(0.1))
-                    .padding(2)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
             )
         }
-        .navigationTitle("植物詳情")
+        .navigationBarTitle("植物詳情")
         .alert("切換生長狀態", isPresented: $showingStateAlert) {
             Button("取消", role: .cancel) { }
             Button(plant.currentState == .active ? "進入休眠期" : "開始生長期") {
                 viewModel.togglePlantState(plant)
-                if isWrongGrowthState {
+                if shouldShowWarningAfterToggle {
                     showingWarning = true
                 }
             }
@@ -158,27 +226,4 @@ struct PlantDetailView: View {
                 .font(.caption)
         }
     }
-}
-
-struct CircleButton: View {
-   let symbol: String
-   let action: () -> Void
-   
-   init(_ symbol: String, action: @escaping () -> Void) {
-       self.symbol = symbol
-       self.action = action
-   }
-   
-   var body: some View {
-       Button(action: action) {
-           Circle()
-               .fill(symbol == "-" ? Color.red.opacity(0.5) : Color.green.opacity(0.5))
-               .frame(width: 24, height: 24)
-               .overlay(
-                   Text(symbol)
-                       .font(.system(size: 16, weight: .medium))
-                       .foregroundColor(.primary)
-               )
-       }
-   }
 }

@@ -28,6 +28,19 @@ struct Plant: Identifiable, Codable {
         currentState == .active ? activeWateringInterval : dormantWateringInterval
     }
     
+    var daysSinceLastWatered: Int {
+        let components = Calendar.current.dateComponents(
+            [.day],
+            from: Calendar.current.startOfDay(for: lastWatered),
+            to: Calendar.current.startOfDay(for: Date())
+        )
+        return components.day ?? 0
+    }
+    
+    var needsWater: Bool {
+        daysSinceLastWatered >= currentWateringInterval
+    }
+    
     init(id: UUID = UUID(),
          name: String,
          species: String,
@@ -43,7 +56,6 @@ struct Plant: Identifiable, Codable {
         self.plantedDate = Date()
         self.lastWatered = Date()
         
-        // 根據當前月份和生長類型判斷狀態
         let currentMonth = Calendar.current.component(.month, from: Date())
         switch growthType {
         case .summer:
@@ -54,15 +66,4 @@ struct Plant: Identifiable, Codable {
             self.currentState = .active
         }
     }
-}
-
-// 植物預設資料
-struct PlantTemplate {
-    static let templates: [(String, String, GrowthType, Int, Int)] = [
-        ("象牙宮", "Scindapsus", .summer, 7, 14),         // 夏型種
-        ("南非龜甲龍", "Dioscorea elephantipes", .winter, 7, 30),  // 冬型種
-        ("圓葉山烏龜", "Dioscorea sylvatica", .summer, 7, 30),    // 夏型種
-        ("娜娜乳香", "Euphorbia leuconeura", .summer, 7, 21),     // 夏型種
-        ("藍巖龍實珠", "Senecio herreianus", .summer, 10, 20)     // 夏型種
-    ]
 }
